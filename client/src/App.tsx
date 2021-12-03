@@ -1,24 +1,41 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import logo from "./logo.svg";
+import MapComponent from "./components/MapComponent";
+import "./App.css";
+import { Formik, Field, Form } from "formik";
+import apiService from "./services/apiService";
 
 function App() {
+  const [breweryInformation, setBreweryInformation] = useState<any>();
+
+  const getCityData = async (city: string) => {
+    const cityData = await apiService.getByCity(city);
+    console.log(cityData);
+    setBreweryInformation(cityData);
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+      <h1>Let's find some beer</h1>
+      <div>
+        <h1>I am the city form</h1>
+        <Formik
+          validateOnChange
+          initialValues={{ city: "" }}
+          onSubmit={(values) => {
+            getCityData(values.city);
+          }}
         >
-          Learn React
-        </a>
-      </header>
+          {({ errors, touched }) => (
+            <Form>
+              <label htmlFor="city">Enter your chosen city</label>
+              <Field id="city" name="city" placeholder="city" />
+              <button type="submit">Submit</button>
+            </Form>
+          )}
+        </Formik>
+        <MapComponent data={breweryInformation} />
+      </div>
     </div>
   );
 }
